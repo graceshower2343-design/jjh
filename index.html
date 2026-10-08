@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Counterfactual: Cyber Incident What-If Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#E6EBEF;--sf:#F7F9FA;--ink:#12202E;--mut:#56677A;--ln:#B3BFCA;--stop:#C8321E;--ok:#1B7556;--okl:#CFE8DD;--unk:#A86A0B;--unkl:#F5E3BD;--hd:#12202E;--hdt:#F7F9FA;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1923;--sf:#16242F;--ink:#E4ECF2;--mut:#93A5B6;--ln:#2E4152;--stop:#FF7A66;--ok:#5CCBA0;--okl:#16392F;--unk:#E9B253;--unkl:#3A2E14;--hd:#070E14;--hdt:#E4ECF2}}
+:root[data-theme="dark"]{--bg:#0E1923;--sf:#16242F;--ink:#E4ECF2;--mut:#93A5B6;--ln:#2E4152;--stop:#FF7A66;--ok:#5CCBA0;--okl:#16392F;--unk:#E9B253;--unkl:#3A2E14;--hd:#070E14;--hdt:#E4ECF2}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Public Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Georgia,sans-serif;margin:0;line-height:1.15}
+header{background:var(--hd);color:var(--hdt);padding:18px 24px;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:space-between}
+header h1{font-size:28px;font-weight:800;letter-spacing:-.5px}header p{margin:2px 0 0;opacity:.75;max-width:60ch}
+header .r{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{border:1px solid currentColor;border-radius:99px;padding:3px 12px;font-size:13px;opacity:.9}
+button{font:inherit;cursor:pointer;color:inherit}button:focus-visible,.nd:focus-visible{outline:3px solid var(--unk);outline-offset:2px}
+.tg{background:none;border:1px solid currentColor;border-radius:8px;padding:4px 10px}
+main{max-width:1240px;margin:0 auto;padding:20px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:12px}}
+section{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:18px;min-width:0}
+section h2{font-size:19px;margin-bottom:4px}.sub{color:var(--mut);margin:0 0 14px;font-size:14px}
+.full{grid-column:1/-1}
+.tl{position:relative;height:96px;margin:6px 10px 0}.tl:before{content:"";position:absolute;left:0;right:0;top:38px;height:3px;background:var(--ln)}
+.nd{position:absolute;top:28px;transform:translateX(-50%);background:var(--sf);border:3px solid var(--ink);width:22px;height:22px;border-radius:50%;padding:0}
+.nd.high{border-color:var(--stop)}.nd.sel{background:var(--ink);box-shadow:0 0 0 4px var(--ln)}
+.nd span{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:12px;white-space:nowrap;font-weight:600}
+.nd i{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font:normal 11px "Public Sans",sans-serif;color:var(--mut);white-space:nowrap}
+.sc{overflow-x:auto}svg{display:block;min-width:720px;width:100%;height:auto}
+.g rect{fill:var(--sf);stroke:var(--ink);stroke-width:1.5}.g text{fill:var(--ink);font:600 11px "Public Sans",sans-serif}.g .t2{font-weight:400;fill:var(--mut)}
+.g{cursor:pointer}.g.sel rect{stroke-width:4}
+.g.STOPPED rect{fill:var(--stop);stroke:var(--stop)}.g.STOPPED text{fill:#fff}
+.g.PREVENTED rect{fill:var(--okl);stroke:var(--ok);stroke-dasharray:5 3}.g.LIKELY rect{fill:var(--okl);stroke:var(--ok);stroke-dasharray:2 3}
+.g.UNKNOWN rect{fill:var(--unkl);stroke:var(--unk);stroke-dasharray:2 3}.g.STILL rect{fill:none;stroke:var(--stop);stroke-width:2.5}
+.ed{fill:none;stroke:var(--ln);stroke-width:2}.ed.cut{stroke:var(--ok);stroke-dasharray:4 4}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0}dt{color:var(--mut)}dd{margin:0;overflow-wrap:anywhere}
+.big{font:800 15px "Bricolage Grotesque";display:inline-block;background:var(--stop);color:#fff;border:0;border-radius:8px;padding:12px 18px;width:100%;margin-top:6px}
+.big:hover{filter:brightness(1.1)}
+ul.l{list-style:none;padding:0;margin:8px 0}ul.l li{padding:6px 0;border-top:1px solid var(--ln)}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:5px;padding:1px 8px;margin-right:8px;border:1px solid}
+.tag.PREVENTED{background:var(--okl);color:var(--ok);border-color:var(--ok)}.tag.LIKELY{color:var(--ok);border-color:var(--ok)}
+.tag.UNKNOWN{background:var(--unkl);color:var(--unk);border-color:var(--unk)}.tag.STILL{color:var(--stop);border-color:var(--stop)}
+.tag.HAPPENED{color:var(--mut);border-color:var(--ln)}.tag.STOPPED{background:var(--stop);color:#fff;border-color:var(--stop)}
+.bar{height:22px;background:var(--bg);border:1px solid var(--ln);border-radius:5px;overflow:hidden}.bar b{display:block;height:100%;background:var(--ok)}
+.score{font:800 44px "Bricolage Grotesque";color:var(--ok);line-height:1}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-top:1px solid var(--ln);vertical-align:middle}th{color:var(--mut);font-weight:500;font-size:13px}
+tr.row{cursor:pointer}tr.row:hover{background:var(--bg)}tr.best{background:var(--okl)}
+.note{color:var(--mut);font-size:13px}.warn{border-left:4px solid var(--unk);padding:6px 12px;background:var(--unkl);margin:10px 0;border-radius:0 6px 6px 0}
+footer{max-width:1240px;margin:0 auto;padding:4px 20px 30px;color:var(--mut);font-size:13px}
+
+header{position:relative;overflow:hidden;background:radial-gradient(900px 200px at 85% -40%,rgba(255,122,102,.28),transparent),linear-gradient(rgba(120,170,210,.07) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,rgba(120,170,210,.07) 1px,transparent 1px) 0 0/32px 32px,var(--hd)}
+header>*{position:relative}header:after{content:"";position:absolute;left:0;top:0;bottom:0;width:140px;background:linear-gradient(90deg,transparent,rgba(120,200,255,.18),transparent);transform:translateX(-200px)}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff5a45;margin-right:8px}
+.g{transform-box:fill-box;transform-origin:center}.g:hover rect{stroke-width:3}.g.STOPPED{filter:drop-shadow(0 0 7px var(--stop))}.g.PREVENTED,.g.LIKELY{filter:drop-shadow(0 0 5px var(--ok))}
+.g.hid,.ed.hid{opacity:.12}.g,.ed{transition:opacity .4s}
+.shock{fill:none;stroke:var(--stop);stroke-width:3;transform-box:fill-box;transform-origin:center;opacity:0}
+.big{position:relative;overflow:hidden}.big:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%)}
+.rp{background:var(--ink);color:var(--sf);border:0;border-radius:8px;padding:6px 14px;font-weight:600;float:right}
+@media(prefers-reduced-motion:no-preference){
+header:after{animation:scan 6s linear infinite}header{animation:grid 20s linear infinite}
+.live{animation:blink 1.4s infinite}
+.ed{stroke-dasharray:6 6;animation:flow 1.1s linear infinite}.ed.cut{animation:none;stroke-dasharray:4 4}
+.sim .g{animation:pop .5s both;animation-delay:calc(var(--i)*.22s)}.sim .ed.cut{animation:cutin .6s both;animation-delay:calc(var(--i)*.22s)}
+.sim .g.STOPPED{animation:pop .4s both,stopglow 1.2s .3s 3}
+.sim .shock{animation:shock 1s .1s 2 ease-out}
+.nd.sel{animation:ping 1.6s infinite}.nd{transition:transform .2s}.nd:hover{transform:translateX(-50%) scale(1.25)}
+.big:hover:after{animation:shine .8s}.big:active{transform:scale(.98)}
+.bar b{animation:grow 1s cubic-bezier(.2,.8,.2,1)}
+#res:not([hidden]){animation:rise .5s both}
+#det h2,#det .sub{animation:rise .35s both}
+}
+@keyframes scan{to{transform:translateX(120vw)}}@keyframes grid{to{background-position:0 0,32px 32px,32px 32px,0 0}}
+@keyframes blink{50%{opacity:.25}}@keyframes flow{to{stroke-dashoffset:-12}}
+@keyframes pop{from{opacity:.15;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes cutin{from{stroke:var(--stop);opacity:.2}}
+@keyframes stopglow{50%{filter:drop-shadow(0 0 18px var(--stop))}}
+@keyframes shock{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(2.6)}}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--ln)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes shine{to{transform:translateX(120%)}}@keyframes grow{from{width:0}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.pk{fill:var(--stop);filter:drop-shadow(0 0 4px var(--stop))}
+@media(prefers-reduced-motion:no-preference){
+main>section{animation:rise .7s both}main>section:nth-child(1){animation-delay:.1s}main>section:nth-child(2){animation-delay:.25s}main>section:nth-child(3){animation-delay:.4s}main>section:nth-child(4){animation-delay:.55s}main>section:nth-child(6){animation-delay:.7s}main>section:nth-child(7){animation-delay:.85s}
+.nd.in{animation:pop2 .5s both;animation-delay:calc(var(--k)*.12s + .3s)}
+.big{animation:throb 2.4s infinite}
+#res li{animation:slide .45s both;animation-delay:calc(var(--n)*.08s + .2s)}
+tr.row{animation:rise .5s both}tr.row:nth-child(2){animation-delay:.05s}tr.row:nth-child(3){animation-delay:.12s}tr.row:nth-child(4){animation-delay:.19s}tr.row:nth-child(5){animation-delay:.26s}tr.row:nth-child(n+6){animation-delay:.33s}
+tr.best{animation:rise .5s both,bestp 2.2s 1s infinite}
+h1{animation:rise .8s both}
+}
+@keyframes pop2{from{opacity:0;transform:translateX(-50%) scale(0)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes throb{0%,100%{box-shadow:0 0 0 0 rgba(200,50,30,.5)}60%{box-shadow:0 0 0 14px rgba(200,50,30,0)}}
+@keyframes slide{from{opacity:0;transform:translateX(-18px)}}
+@keyframes bestp{50%{background:color-mix(in srgb,var(--okl),var(--ok) 28%)}}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.card2{border:1px solid var(--ln);border-radius:8px;padding:16px;background:var(--bg)}.card2 h3{font-size:16px}
+.row2{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--ln)}.row2 span:first-child{color:var(--mut)}.x{color:var(--stop)}.o{color:var(--ok)}
+.fm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0}.fm span,.fm strong{border:1px solid var(--ink);border-radius:6px;padding:4px 10px}.fm strong{background:var(--ink);color:var(--sf);font-family:"Bricolage Grotesque",sans-serif}.fm i{font-style:normal;font-weight:700}
+[hidden]{display:none!important}
+.view{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;position:relative;overflow:hidden}
+.hero{background:radial-gradient(900px 400px at 80% -10%,rgba(255,122,102,.25),transparent),linear-gradient(rgba(120,170,210,.07) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,rgba(120,170,210,.07) 1px,transparent 1px) 0 0/32px 32px,#0E1923;color:#E4ECF2}
+.hc{position:relative;max-width:900px;margin:0 auto;width:100%}.hh{font-size:clamp(46px,11vw,128px);font-weight:800;letter-spacing:-3px}
+.ht{font-size:clamp(18px,2.4vw,26px);max-width:34ch;margin:14px 0 28px;opacity:.85}svg.hs{min-width:0;max-width:620px;margin:6px 0 30px}
+.btn{font:700 17px "Bricolage Grotesque",sans-serif;padding:14px 26px;border-radius:10px;border:2px solid #FF7A66;background:#FF7A66;color:#12202E;margin:0 12px 12px 0}.btn.ghost{background:transparent;color:#E4ECF2;border-color:#E4ECF2}
+.btn:hover{filter:brightness(1.12)}.st .btn{border-color:var(--ink);background:var(--ink);color:var(--sf)}.st .btn.ghost{background:transparent;color:var(--ink)}
+.dz{border:2px dashed var(--ln);border-radius:12px;padding:44px 20px;text-align:center;background:var(--sf)}.dz.over{border-color:var(--stop);background:var(--unkl)}
+@media(prefers-reduced-motion:no-preference){.ht{animation:rise .8s .15s both}svg.hs{animation:rise .8s .3s both}.hb{animation:rise .8s .45s both}.hf{animation:flow 1s linear infinite}.dz{animation:rise .5s both}}
+</style></head><body>
+<div id="home" class="view hero"><canvas id="pt2" style="position:absolute;inset:0;width:100%;height:100%;opacity:.7;pointer-events:none"></canvas>
+<div class="hc"><h1 class="hh">Counterfactual</h1><p class="ht">Don't just investigate what happened. Find where you could have stopped it.</p>
+<svg class="hs" viewBox="0 0 600 64" aria-hidden="true"><line x1="40" y1="30" x2="560" y2="30" stroke="#3a4f62" stroke-width="3"/><line class="hf" x1="40" y1="30" x2="256" y2="30" stroke="#ff7a66" stroke-width="3" stroke-dasharray="6 6"/>
+<g fill="#E4ECF2" font-size="12" text-anchor="middle" font-family="Public Sans,sans-serif"><circle cx="40" cy="30" r="8"/><circle cx="148" cy="30" r="8"/><circle cx="256" cy="30" r="8" fill="#ff7a66"/><g opacity=".3"><circle cx="364" cy="30" r="8"/><circle cx="472" cy="30" r="8"/><circle cx="560" cy="30" r="8"/></g>
+<text x="310" y="39" font-size="26" fill="#ff7a66">✕</text><text x="40" y="58">Email</text><text x="148" y="58">Link</text><text x="256" y="58">Malware</text><text x="364" y="58" opacity=".4">Credentials</text><text x="472" y="58" opacity=".4">C2</text><text x="560" y="58" opacity=".4">Data</text></g>
+<circle r="5" fill="#ff7a66"><animateMotion path="M40 30H256" dur="1.8s" repeatCount="indefinite"/></circle></svg>
+<div class="hb"><button class="btn" id="b-start">Start investigation</button><button class="btn ghost" id="b-demo">Try demo</button></div></div></div>
+<div id="start" class="view st" hidden><div class="hc" style="max-width:640px"><button class="tg" id="b-back" style="margin-bottom:16px">Back</button><h2 style="font-size:30px;margin-bottom:14px">Start new investigation</h2>
+<div class="dz" id="dz"><p style="margin:0 0 6px;font-size:18px">Drop logs, events or evidence here</p><p class="note" style="margin:0 0 18px">CSV, JSON or JSONL with message and datetime fields. Timesketch exports work.</p>
+<button class="btn" id="b-up">Upload evidence</button><button class="btn ghost" id="b-load">Load demo incident</button><input type="file" id="file" accept=".csv,.json,.jsonl,.txt" hidden></div><p id="err" role="alert" style="color:var(--stop)"></p></div></div>
+<div id="dash" hidden><header><canvas id="pt" style="position:absolute;inset:0;width:100%;height:100%;opacity:.7;pointer-events:none"></canvas><div><h1>Counterfactual</h1><p>Don't just investigate what happened. Find where you could have stopped it.</p></div>
+<div class="r"><span class="chip"><i class="live"></i>Incident #042</span><span class="chip" id="risk"></span><button class="tg" id="b-new">New investigation</button><button class="tg" id="b-home">Home</button><button class="tg" id="th">Switch theme</button></div></header>
+<main>
+<section class="full"><h2>Incident timeline</h2><p class="sub">Select an event to inspect its evidence. Events are placed by time (10:00 to 10:20). Red rings mark high or critical severity.</p><div class="tl" id="tl"></div></section>
+<section><button class="rp" id="rp">Replay attack</button><h2>Attack chain</h2><p class="sub">Arrows show which events depend on which. After a simulation, the chain shows what changes.</p><div class="sc"><svg id="svg" viewBox="0 0 870 240" role="img" aria-label="Attack chain graph"></svg></div>
+<p class="note" id="legend"></p></section>
+<section id="det"></section>
+<section class="full" id="res" hidden></section>
+<section class="full" id="cmpsec" hidden><h2>Where should we have stopped?</h2><p class="sub">Every point where a defender could act, ranked by estimated impact prevented. Select a row to simulate it.</p><div class="sc"><table id="cmp"></table></div><div id="best"></div></section>
+<section class="full" id="ai" hidden><h2>AI explanation</h2><div id="aix"></div></section>
+</main>
+<footer><p>Counterfactual extends the open-source <a href="https://github.com/google/timesketch" style="color:inherit">Timesketch</a> forensic timeline platform (Apache-2.0, copyright the Timesketch authors). Event records here use Timesketch-style fields (datetime, message, data_type, source). This page is a self-contained demo: the simulation is a deterministic rule model on prepared data, and "Estimated impact prevented" is a weighted estimate, not a validated probability. Explanations are generated from the structured timeline by rules, with no external AI service.</p></footer></div>
+<script>
+let MAXM=20;const RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let E=[
+{id:1,t:"10:00",m:0,n:"Phishing email",type:"PHISHING EMAIL RECEIVED",host:"mail gateway",who:"a.rao@corp.example",src:"Email security log",sev:"MEDIUM",conf:"HIGH",d:"Email with invoice lure from lookalike domain delivered to the finance mailbox.",ev:["Mail gateway delivery record","Sender domain registered 2 days earlier"],unk:["Whether other mailboxes received it"],act:"Quarantine the email and block the sender",eff:.9,w:0},
+{id:2,t:"10:05",m:5,n:"Link clicked",type:"MALICIOUS LINK CLICKED",host:"DESKTOP-042",who:"a.rao",src:"Web proxy log",sev:"MEDIUM",conf:"HIGH",d:"User opened a URL that redirects to a file-hosting page.",ev:["Proxy request 5 min after delivery","Referrer is the webmail client","URL reputation: newly seen"],unk:["Whether the user entered any credentials on the page"],act:"Block the malicious URL at the proxy",eff:.98,w:0},
+{id:3,t:"10:06",m:6,n:"Malware download",type:"MALWARE DOWNLOADED",host:"DESKTOP-042",who:"a.rao",src:"EDR file event",sev:"HIGH",conf:"HIGH",d:"invoice.exe written to the Downloads folder.",ev:["File creation event","Download came from the flagged URL","SHA-256 matches a known loader"],unk:["Whether a copy was saved elsewhere"],act:"Block the download and delete the file",eff:.95,w:0},
+{id:4,t:"10:08",m:8,n:"Malware exec",type:"MALWARE EXECUTION",host:"DESKTOP-042",who:"a.rao",src:"Windows Event Log",sev:"HIGH",conf:"HIGH",d:"invoice.exe started as a child of the browser and spawned a hidden PowerShell process.",ev:["Windows process creation event","File creation event 2 minutes earlier","Process hash matches the download","Outbound network connection 4 minutes later"],unk:["Whether persistence was established before 10:08"],act:"Isolate the endpoint and terminate the malicious process",eff:.9,w:0},
+{id:5,t:"10:10",m:10,n:"Credentials",type:"CREDENTIAL ACCESS",host:"DESKTOP-042",who:"a.rao",src:"EDR memory access alert",sev:"CRITICAL",conf:"MEDIUM",d:"The malicious process read LSASS memory, a common credential-dumping step.",ev:["Process opened LSASS with read access","Parent process is invoice.exe"],unk:["Whether credentials were successfully stolen","Whether they were reused elsewhere"],act:"Force a password reset and revoke active sessions",eff:.85,w:20},
+{id:6,t:"10:12",m:12,n:"C2 connection",type:"C2 ESTABLISHED",host:"DESKTOP-042",who:"a.rao",src:"Firewall log",sev:"CRITICAL",conf:"MEDIUM",d:"Regular outbound beacons from the malicious process to 185.0.2.44 over HTTPS.",ev:["Beacon interval about 60 seconds","Destination on a threat intel list","Source process is invoice.exe"],unk:["What commands the attacker sent"],act:"Block the C2 address at the firewall",eff:.9,w:15},
+{id:7,t:"10:15",m:15,n:"File access",type:"SENSITIVE FILES ACCESSED",host:"FILESRV-01",who:"a.rao",src:"File server audit log",sev:"CRITICAL",conf:"MEDIUM",d:"The finance share was read in bulk, 1,240 files in 3 minutes.",ev:["Audit entries under a.rao","Access rate far above this user's baseline"],unk:["Which files were copied, not just opened"],act:"Isolate the endpoint and lock the account",eff:.9,w:25},
+{id:8,t:"10:20",m:20,n:"Exfiltration",type:"DATA EXFILTRATION",host:"DESKTOP-042",who:"a.rao",src:"Network flow log",sev:"CRITICAL",conf:"LOW",d:"About 2.1 GB sent to the C2 address in 10 minutes.",ev:["Large outbound flow to the C2 address"],unk:["Whether data actually left the network","What the data contained"],act:"Cut the outbound connection",eff:.9,w:40}];
+let P=[[1,2,1],[2,3,1],[3,4,1],[4,5,.95],[4,6,.9],[5,7,.8],[6,7,.7],[6,8,.95],[7,8,.95]];
+const POS={1:[8,97],2:[125,97],3:[242,97],4:[359,97],5:[490,30],6:[490,164],7:[620,97],8:[750,97]};
+const LAB={PREVENTED:"Prevented",LIKELY:"Likely prevented",UNKNOWN:"Unknown",STILL:"Likely still occurs",HAPPENED:"Already happened",STOPPED:"Stopped here"};
+const by=id=>E.find(e=>e.id===id);let sel=4,sim=null;
+const $=s=>document.querySelector(s);
+function run(s){const best={[s]:1};
+ for(const e of E){if(e.id<=s)continue;let b=0;for(const[f,t,d]of P)if(t===e.id&&best[f])b=Math.max(b,best[f]*d);if(b)best[e.id]=b}
+ const a=by(s),st={};let pts=0;
+ for(const e of E){if(e.id===s)st[e.id]={k:"STOPPED",p:1};else if(best[e.id]){const p=a.eff*best[e.id];pts+=e.w*p;st[e.id]={k:p>=.85?"PREVENTED":p>=.6?"LIKELY":p>=.35?"UNKNOWN":"STILL",p}}else st[e.id]={k:"HAPPENED",p:0}}
+ return{s,st,pts:Math.round(pts)}}
+const all=()=>E.filter(e=>e.id<8).map(e=>run(e.id));
+let first=true,rid=0;function tl(){$("#tl").innerHTML=E.map(e=>`<button class="nd ${first?"in ":""}${e.sev=="HIGH"||e.sev=="CRITICAL"?"high":""} ${e.id===sel?"sel":""}" style="left:${e.m/MAXM*100}%;--k:${e.id}" data-id="${e.id}" aria-label="${e.t} ${e.type}"><i>${e.type.split(" ").slice(0,2).join(" ").toLowerCase()}</i><span>${e.t}</span></button>`).join("")}
+const PK=(f,t,a,b,c,x2,cut)=>RM||cut?"":`<circle class="pk" r="3.5"><animateMotion dur="2s" begin="${f*.25}s" repeatCount="indefinite" path="M${a} ${b}C${a+35} ${b},${x2-35} ${c},${x2} ${c}"/></circle>`;
+function graph(){let h="";const L=sim?sim.st:{};
+ for(const[f,t]of P){const[x1,y1]=POS[f],[x2,y2]=POS[t],a=x1+100,b=y1+23,c=y2+23,cut=sim&&["PREVENTED","LIKELY"].includes(L[t].k);
+ h+=`<path class="ed ${cut?"cut":""}" style="--i:${Math.max(0,t-sel)}" d="M${a} ${b}C${a+35} ${b},${x2-35} ${c},${x2} ${c}"/>`+PK(f,t,a,b,c,x2,cut)}
+ for(const e of E){const[x,y]=POS[e.id],k=sim?L[e.id].k:"";h+=`<g class="g ${k} ${e.id===sel?"sel":""}" style="--i:${Math.max(0,e.id-sel)}" data-id="${e.id}" tabindex="0" role="button"><rect x="${x}" y="${y}" width="100" height="46" rx="6"/><text x="${x+8}" y="${y+19}">${e.t} ${e.n.length>12?e.n.slice(0,11)+"…":e.n}</text><text class="t2" x="${x+8}" y="${y+36}">${k?LAB[k]:e.sev.toLowerCase()}</text></g>`}
+ if(sim){const[sx,sy]=POS[sim.s];h+=`<circle class="shock" cx="${sx+50}" cy="${sy+23}" r="40"/>`}$("#svg").innerHTML=h;$("#svg").classList.toggle("sim",!!sim);$("#legend").textContent=sim?"Dashed green: prevented or likely prevented. Amber: unknown. Red outline: likely still occurs. Solid red: stopped.":"Select an event, then choose what-if to simulate."}
+function detail(){const e=by(sel);
+ $("#det").innerHTML=`<h2>${e.t} ${e.type.toLowerCase().replace(/^./,c=>c.toUpperCase())}</h2><p class="sub">${e.d}</p>
+ <dl><dt>Host</dt><dd>${e.host}</dd><dt>User</dt><dd>${e.who}</dd><dt>Source</dt><dd>${e.src}</dd><dt>Severity</dt><dd>${e.sev}</dd><dt>Confidence</dt><dd>${e.conf}</dd><dt>Depends on</dt><dd>${P.filter(p=>p[1]===e.id).map(p=>by(p[0]).t+" "+by(p[0]).n).join(", ")||"none (start of incident)"}</dd></dl>
+ <strong>Why we think this happened</strong><ul class="l">${e.ev.map(x=>`<li>✓ ${x}</li>`).join("")}</ul>
+ ${e.unk.length?`<div class="warn"><strong>What we don't know</strong><br>${e.unk.map(x=>"? "+x).join("<br>")}</div>`:""}
+ ${e.id<8?`<button class="big" id="go">What if we stopped here at ${e.t}?</button><p class="note">Action: ${e.act}.</p>`:`<p class="note">This is the last event in the chain, so there is nothing downstream to prevent. Select an earlier event.</p>`}<button class="big" id="cb" style="background:var(--ink);margin-top:10px;animation:none">Compare interventions</button>`;
+ const g=$("#go");if(g)g.onclick=()=>{sim=run(sel);draw(true)};$("#cb").onclick=showCmp}
+function result(){const r=$("#res");if(!sim){r.hidden=true;return}r.hidden=false;const a=by(sim.s),pre=E.filter(e=>["PREVENTED","LIKELY"].includes(sim.st[e.id].k));
+ const unk=[...new Set(E.filter(e=>e.id<=sim.s).flatMap(e=>e.id===sim.s||e.id===sim.s-0?e.unk:[]))];
+ const un=E.filter(e=>sim.st[e.id].k==="UNKNOWN"||sim.st[e.id].k==="STILL");
+ const why=pre.slice(0,3).map(e=>{const p=P.filter(q=>q[1]===e.id).map(q=>by(q[0])).find(q=>q.id===sim.s||sim.st[q.id].k!=="HAPPENED");return`${e.n.toLowerCase()} (${e.t}) depends on ${p?p.n.toLowerCase():"earlier steps"}`}).join("; ");
+ r.innerHTML=`<h2>Counterfactual result: stopped at ${a.t}</h2><p class="sub">Action: ${a.act}. Intervention efficacy assumed ${Math.round(a.eff*100)}%.</p>
+ <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:24px" id="rg"><div><div class="score">${sim.pts}%</div><p style="margin:4px 0 8px">Estimated impact prevented</p>
+ <p class="note" style="margin:0">Original</p><div class="bar"><b style="width:100%;background:var(--stop)"></b></div><p class="note" style="margin:8px 0 0">After intervention</p><div class="bar"><b style="width:${100-sim.pts}%;background:var(--unk)"></b></div><p class="note">Weights: credential compromise 20, C2 15, sensitive file access 25, exfiltration 40, each scaled by how strongly the event depends on the stopped one and by the action's efficacy.</p></div>
+ <div><ul class="l">${E.map(e=>{const s=sim.st[e.id];return`<li style="--n:${E.indexOf(e)}"><span class="tag ${s.k}">${LAB[s.k]}</span>${e.t} ${e.n}${s.k!=="HAPPENED"&&s.k!=="STOPPED"?` <span class="note">(${Math.round(s.p*100)}% confidence)</span>`:""}</li>`}).join("")}</ul></div></div>
+ <p><strong>Explanation.</strong> Stopping the attack at ${a.t} would ${pre.length?`likely have prevented ${pre.length} later event${pre.length>1?"s":""}: ${why}${pre.length>3?", and others":""}.`:"not change any later events, because everything depends on steps that already happened."} Events up to ${a.t} had already occurred. These predictions rest on the dependency links in the timeline, not on proof of what the attacker would have done.</p>
+ <div class="warn"><strong>What remains uncertain</strong><br>${a.unk.map(x=>"? "+x).join("<br>")}${un.length?"<br>? "+un.map(e=>e.n.toLowerCase()).join(", ")+" may have had another route to occur":""}<br><span class="note">Collect next: authentication logs, proxy logs, network flow logs, EDR persistence checks.</span></div><button class="big" id="cb2" style="background:var(--ink);animation:none">Compare interventions</button>`;
+ $("#cb2").onclick=showCmp;if(innerWidth<700)$("#rg").style.gridTemplateColumns="1fr"}
+function compare(){const rs=all(),mx=Math.max(...rs.map(r=>r.pts));
+ $("#cmp").innerHTML=`<tr><th>Time</th><th>Action</th><th>Events prevented</th><th style="min-width:180px">Impact prevented</th><th>Confidence</th></tr>`+rs.map(r=>{const a=by(r.s),n=E.filter(e=>["PREVENTED","LIKELY"].includes(r.st[e.id].k)).length;
+ return`<tr class="row ${r.pts===mx?"best":""}" data-id="${r.s}" tabindex="0"><td><strong>${a.t}</strong></td><td>${a.act}</td><td>${n}</td><td><div class="bar"><b style="width:${r.pts}%"></b></div><strong>${r.pts}%</strong></td><td>${a.conf}</td></tr>`}).join("");
+ const b=rs.find(r=>r.pts===mx),a=by(b.s),later=E.filter(e=>e.id>b.s&&e.w>0).map(e=>e.n.toLowerCase());
+ $("#best").innerHTML=`<div class="warn" style="border-color:var(--ok);background:var(--okl)"><h3>🥇 Best intervention: ${a.t}, ${a.act.toLowerCase()}</h3><p style="margin:6px 0 0">It acts before ${later.join(", ")}, so it cuts off the most weighted damage. Earlier points on the list are not always better: they only win here because the actions at ${a.t} are assumed to work ${Math.round(a.eff*100)}% of the time.</p></div>`}
+function showCmp(){$("#cmpsec").hidden=false;$("#ai").hidden=false;compare();ai();$("#cmpsec").scrollIntoView({behavior:RM?"auto":"smooth"})}
+function ai(){const rs=all(),b=rs.reduce((x,y)=>y.pts>x.pts?y:x),a=by(b.s),anc=E.filter(e=>e.id<=b.s),down=E.filter(e=>["PREVENTED","LIKELY"].includes(b.st[e.id].k)),later=E.filter(e=>e.id>b.s&&e.w>0).map(e=>e.n.toLowerCase()),cf=anc.some(e=>e.conf=="LOW")?"LOW":anc.some(e=>e.conf=="MEDIUM")?"MEDIUM":"HIGH";
+$("#aix").innerHTML=`<h3>Why was ${a.t} the best intervention?</h3><p style="max-width:75ch">The ${a.type.toLowerCase()} at ${a.t} comes before ${later.join(", ")}. ${a.act} at this stage would likely have prevented ${down.length} later stage${down.length==1?"":"s"}, about ${b.pts}% of the estimated impact. This is an estimate from the dependency links in the timeline, not proof of what the attacker would have done.</p><strong>Evidence used</strong><ul class="l">${anc.map(e=>`<li>✓ ${e.type.toLowerCase()} (${e.src})</li>`).join("")}</ul><p><strong>Confidence: ${cf}</strong></p><p class="note">Generated by rules from the structured timeline. An LLM can be plugged in later; the facts always come from the timeline.</p>`}
+function draw(scroll){rid++;tl();graph();detail();result();compare();if(!$("#ai").hidden)ai();fx();first=false;if(scroll)$("#res").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}
+function fx(){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;const s=$(".score");if(s&&sim){const t=sim.pts,t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/1000);s.textContent=Math.round(t*(1-Math.pow(1-k,3)))+"%";if(k<1)requestAnimationFrame(f)})(t0)}}
+function replay(){sim=null;draw();const my=rid,g=[...document.querySelectorAll("#svg .g")],p=[...document.querySelectorAll("#svg .ed")];g.forEach(n=>n.classList.add("hid"));p.forEach(n=>n.classList.add("hid"));E.forEach(e=>setTimeout(()=>{if(my!==rid)return;g[e.id-1].classList.remove("hid");P.forEach((x,i)=>{if(x[1]===e.id)p[i].classList.remove("hid")});document.querySelectorAll(".nd").forEach(n=>n.classList.toggle("sel",+n.dataset.id===e.id))},e.m*350))}
+$("#rp").onclick=replay;
+function pick(id){sel=+id;sim=null;draw()}
+document.addEventListener("click",e=>{const n=e.target.closest("[data-id]");if(!n)return;if(n.closest("#cmp")){sel=+n.dataset.id;sim=run(sel);draw(true)}else pick(n.dataset.id)});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".g,tr.row"))e.target.click()});
+$("#th").onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue("--sf").trim()==="#16242F";d.dataset.theme=dark?"light":"dark"};
+function particles(c){if(RM)return;const x=c.getContext("2d");let W,H,ps=[];function sz(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;ps=Array.from({length:Math.round(W/26)},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}))}sz();addEventListener("resize",sz);
+(function f(){if(c.offsetWidth&&(c.width!==c.offsetWidth||c.height!==c.offsetHeight))sz();x.clearRect(0,0,W,H);for(const p of ps){p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;x.fillStyle="rgba(140,200,255,.8)";x.fillRect(p.x,p.y,2,2)}
+for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){const d=Math.hypot(ps[i].x-ps[j].x,ps[i].y-ps[j].y);if(d<90){x.strokeStyle="rgba(140,200,255,"+.25*(1-d/90)+")";x.beginPath();x.moveTo(ps[i].x,ps[i].y);x.lineTo(ps[j].x,ps[j].y);x.stroke()}}
+requestAnimationFrame(f)})()}particles($("#pt"));particles($("#pt2"));
+const DE=E.slice(),DP=P.slice();
+const CUES=[/phish|lure/,/link clicked|malicious url/,/malware download|downloaded/,/malware exec|process creation|executed/,/lsass|credential/,/beacon|c2 established|c2 connection/,/sensitive file|bulk file|finance share/,/exfil|outbound/],KEYS=["phishing","link","download","exec","cred","c2","file","exfil"];
+function csv(t){const rows=[];let r=[],c="",q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==","){r.push(c);c=""}else if(ch=="\n"||ch=="\r"){if(ch=="\r"&&t[i+1]=="\n")i++;r.push(c);c="";rows.push(r);r=[]}else c+=ch}if(c||r.length){r.push(c);rows.push(r)}const h=rows.shift().map(x=>x.trim().toLowerCase());return rows.filter(x=>x.length>1).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]])))}
+function parse(t){t=t.trim();const rows=t[0]=="["?JSON.parse(t):t[0]=="{"?t.split(/\r?\n/).filter(Boolean).map(l=>JSON.parse(l)):csv(t);return rows.map(r=>r._source||r)}
+function fromRows(rows){const f={};for(const r of rows){const msg=String(r.message||""),d=new Date(r.datetime||r.timestamp);if(isNaN(d))continue;let tg=r.tag||r.tags||[];if(typeof tg=="string")tg=tg.split(/[,;|]/).map(x=>x.trim());let i=KEYS.findIndex(k=>tg.includes("cf:"+k)),conf="HIGH";if(i<0){const tx=(msg+" "+(r.data_type||"")).toLowerCase();i=CUES.findIndex(c=>c.test(tx));conf="MEDIUM"}if(i<0)continue;const id=i+1;if(!f[id]||d<f[id].d)f[id]={d,r,msg,conf}}
+const ids=Object.keys(f).map(Number).sort((a,b)=>a-b);if(ids.length<3)return null;const t0=Math.min(...ids.map(i=>f[i].d));
+return{E:ids.map(id=>{const x=f[id],T=DE.find(e=>e.id===id);return{...T,t:x.d.toISOString().slice(11,16),m:(x.d-t0)/60000,host:x.r.hostname||T.host,who:x.r.username||T.who,src:x.r.source_short||x.r.data_type||T.src,conf:x.conf,d:x.msg,ev:["Uploaded event: "+x.msg,"Classified by "+(x.conf=="HIGH"?"cf: tag":"keyword match")]}}),P:DP.filter(p=>f[p[0]]&&f[p[1]])}}
+function show(v){["home","start","dash"].forEach(x=>$("#"+x).hidden=x!==v);scrollTo(0,0)}
+function enter(ev,pp){E=ev;P=pp;MAXM=Math.max(1,...E.map(e=>e.m));sim=null;first=true;sel=(E.find(e=>e.id===4)||E[0]).id;$("#cmpsec").hidden=true;$("#ai").hidden=true;$("#risk").textContent=E.some(e=>e.sev=="CRITICAL")?"HIGH RISK 🔴":"MEDIUM RISK 🟠";show("dash");draw();setTimeout(replay,900)}
+async function onFile(f){const er=$("#err");er.textContent="";try{const r=fromRows(parse(await f.text()));if(!r){er.textContent="Found fewer than 3 attack stages in this file. Each event needs a message and datetime. Messages should mention things like phishing, link clicked, malware execution, credential access, C2 beacon, sensitive files or exfiltration, or carry a cf:<stage> tag.";return}enter(r.E,r.P)}catch(x){er.textContent="Could not read this file. Use CSV, JSON or JSONL with message and datetime fields."}}
+$("#b-start").onclick=()=>show("start");$("#b-demo").onclick=$("#b-load").onclick=()=>enter(DE,DP);$("#b-back").onclick=$("#b-home").onclick=()=>show("home");$("#b-new").onclick=()=>show("start");
+$("#b-up").onclick=()=>$("#file").click();$("#file").onchange=e=>e.target.files[0]&&onFile(e.target.files[0]);
+const dz=$("#dz");dz.ondragover=e=>{e.preventDefault();dz.classList.add("over")};dz.ondragleave=()=>dz.classList.remove("over");dz.ondrop=e=>{e.preventDefault();dz.classList.remove("over");e.dataTransfer.files[0]&&onFile(e.dataTransfer.files[0])};
+show("home");
+</script></body></html>
